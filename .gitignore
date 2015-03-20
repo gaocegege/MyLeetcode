@@ -1,0 +1,7 @@
+# *.out
+*.out
+
+testEnv.cpp
+bug.cpp
+
+readme.md

@@ -4,46 +4,39 @@ using namespace std;
 
 class Solution {
 public:
-	double findKthElement(int A[], int startA, int endA, int B[], int startB, int endB, int k) {
-        if (endB < startB)
-            return A[startA + k - 1];
-        if (endA < startA)
-            return B[startB + k - 1];
-		int middleA = (startA + endA) / 2;
-        int middleB = (startB + endB) / 2;
+	double findKthElement(int A[], int m, int B[], int n, int k) {
+        int i = (int)((double)m / (m+n) * (k-1));
+        int j = (k-1) - i;
+        // invariant: i + j = k-1
+        // Note: A[-1] = -INF and A[m] = +INF to maintain invariant
+        int Ai_1 = ((i == 0) ? INT_MIN : A[i-1]);
+        int Bj_1 = ((j == 0) ? INT_MIN : B[j-1]);
+        int Ai   = ((i == m) ? INT_MAX : A[i]);
+        int Bj   = ((j == n) ? INT_MAX : B[j]);
 
-        if (middleB - startB + middleA - startA + 2 > k)
-        {
-            if (A[middleA] > B[middleB])
-            {
-                return findKthElement(A, startA, middleA - 1, B, startB, endB, k);
-            }
-            else
-            {
-                return findKthElement(A, startA, endA, B, startB, middleB - 1, k);
-            }
-        }
-        else
-        {
-            if (A[middleA] > B[middleB])
-            {
-                return findKthElement(A, startA, endA, B, middleB + 1, endB, k - (middleB - startB + 1));
-            }
-            else
-            {
-                return findKthElement(A, middleA + 1, endA, B, startB, endB, k - (middleA - startA + 1));
-            }
-        }
+        if (Bj_1 <= Ai && Ai <= Bj)
+            return Ai;
+        else if (Ai_1 <= Bj && Bj <= Ai)
+            return Bj;
+
+        // if none of the cases above, then it is either:
+        if (Ai < Bj)
+        // exclude Ai and below portion
+        // exclude Bj and above portion
+            return findKthElement(A+i+1, m-i-1, B, j, k-i-1);
+        else /* Bj < Ai */
+        // exclude Ai and above portion
+        // exclude Bj and below portion
+            return findKthElement(A, i, B+j+1, n-j-1, k-j-1);
 	}
 
     double findMedianSortedArrays(int A[], int m, int B[], int n) {
     	int k = (m + n + 1) / 2;
         if ((m + n) % 2 == 1)
-            return findKthElement(A, 0, m - 1,B,0,n - 1, k);
+            return findKthElement(A, m, B, n, k);
         else
         {
-            // cout << findKthElement(A, 0, m-1, B, 0, n - 1, k + 1) << endl;
-            return ((double) findKthElement(A, 0, m-1, B, 0, n - 1, k) + (double) findKthElement(A, 0, m - 1, B, 0, n - 1, k + 1)) / 2.0;
+            return ((double) findKthElement(A, m, B, n, k) + (double) findKthElement(A, m, B, n, k + 1)) / 2.0;
         }
     }
 
